@@ -30,6 +30,7 @@ namespace TimeTrackReporterOS.ApiClients
 
         public async Task Run(DateTime dateFrom, DateTime dateTo, IEnumerable<string>? projectsFilter = null)
         {
+            GitLabUrl = GitLabUrl + "/api/graphql";
             Console.WriteLine("Connecting to GitLab...");
 
             var client = new GraphQLHttpClient(GitLabUrl, new NewtonsoftJsonSerializer());
