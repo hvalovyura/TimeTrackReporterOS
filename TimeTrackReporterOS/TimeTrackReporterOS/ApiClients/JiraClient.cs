@@ -71,6 +71,7 @@ namespace TimeTrackReporterOS.ApiClients
                 }
             }
 
+            BuildFileHelper.BuildCsv(entries);
             BuildFileHelper.BuildExcel(entries);
         }
 

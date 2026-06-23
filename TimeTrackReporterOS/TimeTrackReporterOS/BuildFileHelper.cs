@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,119 @@ namespace TimeTrackReporterOS
 {
     public static class BuildFileHelper
     {
+        public static void BuildCsv(List<TimeEntryModel> entries)
+        {
+            Console.WriteLine("Building CSV...");
+
+            entries = entries
+                .OrderBy(x => x.Project)
+                .ThenBy(x => x.Issue)
+                .ToList();
+
+            var users = entries
+                .Select(x => x.User)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+
+            string fileName = "Timesheet_ByUser.csv";
+
+            using (var writer = new StreamWriter(fileName, false, Encoding.UTF8))
+            {
+                writer.Write("Task");
+
+                foreach (var user in users)
+                    writer.Write($";{Escape(user)}");
+
+                writer.WriteLine(";TOTAL");
+
+                var projects = entries
+                    .GroupBy(x => x.Project)
+                    .OrderBy(x => x.Key);
+
+                foreach (var project in projects)
+                {
+                    writer.WriteLine(Escape(project.Key));
+
+                    var issues = project
+                        .GroupBy(x => x.Issue)
+                        .OrderBy(x => x.Key);
+
+                    foreach (var issue in issues)
+                    {
+                        writer.Write(Escape(issue.Key));
+
+                        double issueTotal = 0;
+
+                        for (int i = 0; i < users.Count; i++)
+                        {
+                            var hours = issue
+                                .Where(x => x.User == users[i])
+                                .Sum(x => x.Hours);
+
+                            writer.Write(";");
+
+                            if (hours > 0)
+                                writer.Write(hours.ToString("0.##", CultureInfo.InvariantCulture));
+
+                            issueTotal += hours;
+                        }
+
+                        writer.WriteLine($";{issueTotal.ToString("0.##", CultureInfo.InvariantCulture)}");
+                    }
+
+                    writer.Write("TOTAL BY PROJECT");
+
+                    double projectTotal = 0;
+
+                    for (int i = 0; i < users.Count; i++)
+                    {
+                        var sum = project
+                            .Where(x => x.User == users[i])
+                            .Sum(x => x.Hours);
+
+                        writer.Write($";{Math.Round(sum, 2).ToString("0.##", CultureInfo.InvariantCulture)}");
+
+                        projectTotal += sum;
+                    }
+
+                    writer.WriteLine($";{Math.Round(projectTotal, 2).ToString("0.##", CultureInfo.InvariantCulture)}");
+
+                    writer.WriteLine();
+                }
+
+                writer.Write("TOTAL BY EMPLOYEE");
+
+                double grandTotal = 0;
+
+                for (int i = 0; i < users.Count; i++)
+                {
+                    var userTotal = entries
+                        .Where(x => x.User == users[i])
+                        .Sum(x => x.Hours);
+
+                    writer.Write($";{Math.Round(userTotal, 2).ToString("0.##", CultureInfo.InvariantCulture)}");
+
+                    grandTotal += userTotal;
+                }
+
+                writer.WriteLine($";{Math.Round(grandTotal, 2).ToString("0.##", CultureInfo.InvariantCulture)}");
+            }
+
+            Console.WriteLine($"Report saved: {Path.GetFullPath(fileName)}");
+        }
+
+        static string Escape(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return "";
+
+            if (value.Contains(";") || value.Contains("\"") || value.Contains("\n"))
+                return $"\"{value.Replace("\"", "\"\"")}\"";
+
+            return value;
+        }
+
         public static void BuildExcel(List<TimeEntryModel> entries)
         {
             Console.WriteLine("Building Excel...");
