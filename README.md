@@ -9,7 +9,7 @@ Try for free on https://timetrackreporter.com/
 
 <h2>🚀 What is this?</h2>
 <p>
-    TimeTrackReporter helps teams and managers export <strong>time spent reports</strong> in a convenient <code>.xlsx</code> format.
+    TimeTrackReporter helps teams and managers export <strong>time spent reports</strong> in a convenient <code>.xlsx</code> or <code>.csv</code> (with semicolon delimiter) format.
 </p>
 
 <p>Perfect for:</p>
@@ -22,7 +22,7 @@ Try for free on https://timetrackreporter.com/
 
 <h2>✨ Features</h2>
 <ul>
-    <li>Export time tracking data to <strong>Excel (.xlsx)</strong></li>
+    <li>Export time tracking data to <strong>Excel (.xlsx or .csv with semicolon delimiter)</strong></li>
     <li>Group by <strong>projects and employees</strong></li>
     <li>Simple and fast — no setup required for using in the cloud (https://timetrackreporter.com/)</li>
     <li>Works with <strong>GitLab</strong> and <strong>Jira</strong> (more integrations coming soon)</li>
